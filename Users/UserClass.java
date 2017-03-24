@@ -4,12 +4,13 @@ import DBPackage.*;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-
+import java.util.Scanner;
 
 public class UserClass {
+	/************************ V A R I A B L E S ************************/
 	private String userID;
 	private String password;
-	
+	/************************ C O N S T R U C T O R S ************************/
 	public UserClass(String userID) throws Exception//constructor by userID
 	{
 		try
@@ -28,7 +29,7 @@ public class UserClass {
 		}//end try
 		catch(Exception e){System.out.println(e);}
 		
-	}//end constructor by userid
+	}//end constructor by userID
 	
 	
 	
@@ -54,6 +55,7 @@ public class UserClass {
 	}//end create new user
 	
 	public static ArrayList<UserClass> allUsersList(String orderBy)  throws Exception
+
 	//gives array list with all of the users order by required field
 	{
 		ArrayList<UserClass> outputList=new ArrayList<UserClass>();
@@ -72,4 +74,45 @@ public class UserClass {
 		
 		return outputList;
 	}//end all users list
-}
+
+	public static UserClass login(String userID,String password) throws Exception
+	//check the login by userID and password
+	{
+		try
+		{
+			DBConnection dbconn=new DBConnection();
+			String sqlQuery="SELECT UserID FROM Users WHERE UserID='"+userID+"' AND Password='"+password+"'";
+			PreparedStatement loginStatement=dbconn.getConn().prepareStatement(sqlQuery);
+			ResultSet rsLogin=loginStatement.executeQuery();
+			if(rsLogin.next())
+				return new UserClass(userID);//return an object of the user by the userID
+		}//end try
+		catch(Exception e){System.out.println(e); return null;}
+		return null;
+	}//end login
+
+	public static void loginForm()
+	{
+		Scanner console=new Scanner(System.in);
+		System.out.println("enter UserID");
+		String inputUserID=console.nextLine();
+		System.out.println("enter password");
+		String inputPassword=console.nextLine();
+		console.close();
+		UserClass myUser=null;
+		try
+		{
+			myUser=login(inputUserID, inputPassword) ;//getting object of my user
+		}//end try
+		catch(Exception e){System.out.println(e);}
+		
+		if(myUser!=null)//logged in
+		{
+			System.out.println("Logged as " + myUser.getUserID());
+		}
+		else
+			System.out.println("Wrong UserID or Password");
+        }//end else (not logged in)
+	
+}//end class
+
